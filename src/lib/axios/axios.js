@@ -9,9 +9,9 @@ export const fetchProducts = async (url) => {
   return response.data;
 };
 
-export const fetchCategories = async () => {
+export const fetchCategories = async (url) => {
   const response = await axios
-    .get("http://localhost:8080/categories")
+    .get(url)
     .then((res) => res.data)
     .catch((err) => err);
 
