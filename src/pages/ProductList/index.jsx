@@ -4,11 +4,19 @@ import {
   AiOutlineEdit,
 } from "react-icons/ai";
 import { getAllProducts } from "../../lib/swr/productSWR";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { IconContext } from "react-icons";
 
 const ProductList = () => {
-  const { data: productsData, isLoading, isError } = getAllProducts();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const category = searchParams.get("category");
+
+  const {
+    data: productsData,
+    isLoading,
+    isError,
+  } = getAllProducts(category ? category : null);
 
   const [searchValue, setSearchValue] = useState("");
   const [filteredProducts, setFilteredProducts] = useState(productsData);
@@ -25,7 +33,7 @@ const ProductList = () => {
     );
   }, [searchValue, productsData]);
 
-  const tableHeader = ["Nama", "Gambar", "Harga", "Kategori", ""];
+  const tableHeader = ["Gambar", "Nama", "Harga", "Kategori", ""];
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error...</div>;
@@ -33,7 +41,9 @@ const ProductList = () => {
   return (
     <main className="m-5 flex min-h-screen flex-col gap-y-10 overflow-x-auto lg:container sm:mx-10 lg:mx-auto lg:mb-10">
       <div className="w-full rounded-xl border border-gray-200 px-10 py-5">
-        <h1 className="px-1 text-xl font-bold">Daftar Produk</h1>
+        <h1 className="px-1 text-xl font-bold">
+          Daftar Produk {category ? " - " + category : ""}
+        </h1>
 
         <div className="container my-5 flex w-full flex-row items-center justify-between gap-x-5 px-1">
           <input
@@ -46,7 +56,7 @@ const ProductList = () => {
             placeholder="Cari produk"
           />
           <Link to="/admin/add/product">
-            <button className="flex flex-row items-center gap-x-2 px-5 py-3 text-sm rounded-lg">
+            <button className="flex flex-row items-center gap-x-2 px-5 py-2 text-sm bg-blue-500 hover:bg-blue-700 rounded-full text-white">
               Tambah Produk <AiFillPlusCircle />
             </button>
           </Link>
@@ -64,22 +74,24 @@ const ProductList = () => {
           <tbody className="divide-y divide-gray-200">
             {filteredProducts?.map(({ id, title, image, price, category }) => (
               <tr key={id} className="hover:cursor-pointer hover:bg-gray-100">
-                <td className="px-3">{title}</td>
                 <td className="px-3 py-3">
-                  <img src={image} className="w-40" alt="thumbnail" />
+                  <img src={image} className="w-12" alt={"gambar " + title} />
                 </td>
+                <td className="px-3">{title}</td>
                 <td className="px-3">
                   {"Rp. " + price.toLocaleString("id-ID")}
                 </td>
                 <td className="px-3">{category}</td>
-                <td className="px-3 py-3 flex flex-row gap-x-2">
+                <td className="px-3 py-1 gap-x-2">
                   <button
                     onClick={() => {
                       console.log(id);
                     }}
-                    className="py-1 text-sm text-blue-500 rounded-full outline-0 outline-blue-500 hover:bg-blue-500 hover:text-white px-2"
+                    className="py-1 text-sm text-blue-500 rounded-full outline-0 outline-blue-500 hover:bg-blue-500 hover:text-white px-2 me-2"
                   >
-                    <AiOutlineEdit />
+                    <IconContext.Provider value={{ size: "1.5em" }}>
+                      <AiOutlineEdit />
+                    </IconContext.Provider>
                   </button>
                   <button
                     onClick={() => {
@@ -87,7 +99,9 @@ const ProductList = () => {
                     }}
                     className="py-1 text-sm text-red-500 rounded-full outline-0 outline-red-500 hover:bg-red-500 hover:text-white px-2"
                   >
-                    <AiOutlineDelete />
+                    <IconContext.Provider value={{ size: "1.5em" }}>
+                      <AiOutlineDelete />
+                    </IconContext.Provider>
                   </button>
                 </td>
               </tr>

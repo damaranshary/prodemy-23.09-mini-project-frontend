@@ -1,15 +1,18 @@
 import useSWR from "swr";
-import { fetchProducts } from "../axios/productAxios";
+import { fetchCategories, fetchProducts } from "../axios/axios";
 
-export const getAllProducts = () => {
-  const { data, isLoading, error } = useSWR(
-    "http://localhost:8080/products",
-    fetchProducts
-  );
+export const getAllProducts = (category) => {
+  let url = "http://localhost:8080/products";
+
+  if (category) {
+    url = `${url}?category=${category}`;
+  }
+
+  const { data, isLoading, error } = useSWR(url, fetchProducts);
 
   return {
     data,
     isLoading,
-    error,
+    isError: error,
   };
 };
