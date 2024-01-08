@@ -10,3 +10,7 @@
     margin: 0;
   }
 }
+
+.inputForm {
+  @apply font-sans text-sm border-[1px] p-1 rounded-md border-gray-300 focus:outline-gray-600;
+}
