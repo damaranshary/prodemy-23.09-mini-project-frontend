@@ -3,7 +3,7 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     fontFamily: {
-      sans: '"Plus Jakarta Sans", sans-serif',
+      sans: '"Inter", sans-serif',
     },
     extend: {
       colors: {
@@ -14,8 +14,6 @@ export default {
         accent: "#6779e0",
       },
     },
-    extend: {},
   },
   plugins: [],
-}
-
+};

@@ -1,13 +1,17 @@
 import {
   AiFillPlusCircle,
+  AiOutlineClose,
+  AiOutlineCloseCircle,
   AiOutlineDelete,
   AiOutlineEdit,
+  AiOutlineFilter,
 } from "react-icons/ai";
 import { getAllCategories, getAllProducts } from "../../lib/swr/productSWR";
 import { Link, useSearchParams } from "react-router-dom";
 import { Fragment, useEffect, useState } from "react";
 import { IconContext } from "react-icons";
 import { RadioGroup } from "@headlessui/react";
+import { BeatLoader } from "react-spinners";
 
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,7 +29,7 @@ const ProductList = () => {
     isError,
   } = getAllProducts(
     choosenCategory ? choosenCategory.id : null,
-    query ? query : null
+    query ? query : null,
   );
 
   const handleOnChange = (e) => {
@@ -52,27 +56,26 @@ const ProductList = () => {
   };
 
   const handleResetCategory = () => {
-      setSearchParams((prevParams) => {
-        choosenCategory && setChoosenCategory(null);
+    setSearchParams((prevParams) => {
+      choosenCategory && setChoosenCategory(null);
 
-        const newParams = new URLSearchParams(prevParams);
-        newParams.delete("category");
-        return newParams.toString();
-      });
+      const newParams = new URLSearchParams(prevParams);
+      newParams.delete("category");
+      return newParams.toString();
+    });
   };
+
   useEffect(() => {
     query && setSearchValue(query);
   }, []);
 
   useEffect(() => {
-    category
+    category && categoriesData
       ? setChoosenCategory(
-          categoriesData?.find((cat) => cat.id === parseInt(category))
+          categoriesData?.find((cat) => cat.id === parseInt(category)),
         )
       : setChoosenCategory(null);
-
-      console.log(choosenCategory);
-  }, []);
+  }, [category, categoriesData]);
 
   useEffect(() => {
     choosenCategory &&
@@ -83,93 +86,89 @@ const ProductList = () => {
       });
   }, [choosenCategory]);
 
-  if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error...</div>;
 
   return (
-    <main className="m-5 flex min-h-screen flex-col gap-y-10 overflow-x-auto lg:container sm:mx-10 lg:mx-auto lg:mb-10">
-      <div className="w-full rounded-xl border border-gray-200 px-10 py-5">
-        <h1 className="px-1 text-xl font-bold">
-          Daftar Produk {choosenCategory ? " - " + choosenCategory.name : ""}
-        </h1>
-        <RadioGroup
-          value={choosenCategory}
-          onChange={setChoosenCategory}
-          className="pb-2"
-        >
-          <RadioGroup.Label className="text-sm">
-            Pilih Kategori
-          </RadioGroup.Label>
-          <div className="flex flex-row">
-            {categoriesData?.map((category) => (
-              <RadioGroup.Option
-                key={category.id}
-                as={Fragment}
-                value={category}
-              >
-                <div
-                  className={`mt-2 flex flex-row items-center justify-between rounded-xl border border-gray-200 px-5 py-2 hover:cursor-pointer ${
-                    category.id === choosenCategory?.id
-                      ? "bg-primary text-white"
-                      : ""
-                  }`}
-                >
-                  <p className="text-sm font-semibold">{category.name}</p>
-                </div>
-              </RadioGroup.Option>
-            ))}
-            <button onClick={handleResetCategory}>Reset</button>
-          </div>
-        </RadioGroup>
-
-        <div className="container my-5 flex w-full flex-row items-center justify-between gap-x-5 px-1">
-          <form onSubmit={handleSearchOnSubmit}>
-            <input
-              type="text"
-              id="search"
-              name="search"
-              value={searchValue}
-              onChange={handleOnChange}
-              className="flex-1 rounded-full border border-gray-300 px-5 py-2 md:w-96 md:flex-initial"
-              placeholder="Cari produk"
-            />
-          </form>
-          <Link to="/admin/add/product">
-            <button className="flex flex-row items-center gap-x-2 px-5 py-2 text-sm bg-blue-500 hover:bg-blue-700 rounded-full text-white">
-              Tambah Produk <AiFillPlusCircle />
-            </button>
-          </Link>
-        </div>
-        <div className="min-w-full ">
-          <div className="flex flex-col gap-y-2">
-            <div className="flex flex-row items-center font-semibold ps-3">
-              <div className="w-2/12 px-3 py-3">Gambar</div>
-              <div className="w-3/12">Nama</div>
-              <div className="w-2/12 px-3">Harga</div>
-              <div className="w-2/12 px-3">Kategori</div>
-              <div className="flex-1 items-end flex flex-row px-3 py-1 gap-x-2">
-                <div className="w-2/12 px-3 self-end">Aksi</div>
-              </div>
-            </div>
-            {productsData?.map(({ id, title, image, price, category }) => (
+    <main className="m-5 flex min-h-screen flex-col overflow-x-auto lg:container sm:mx-10 lg:mx-auto lg:mb-10">
+      <h1 className="md:text-xl text-2xl font-bold">
+        Daftar Produk {choosenCategory ? " - " + choosenCategory.name : ""}
+      </h1>
+      <div className="container my-5 flex w-full flex-row items-center justify-between gap-x-5 px-1">
+        <form onSubmit={handleSearchOnSubmit}>
+          <input
+            type="text"
+            id="search"
+            name="search"
+            value={searchValue}
+            onChange={handleOnChange}
+            className="flex-1 rounded-full border border-gray-300 px-5 py-2 md:w-96 md:flex-initial"
+            placeholder="Cari produk"
+          />
+        </form>
+        <Link to="/admin/add/product">
+          <button className="flex flex-row items-center gap-x-2 rounded-full bg-primary px-5 py-2 text-sm text-white hover:bg-accent">
+            Tambah Produk <AiFillPlusCircle />
+          </button>
+        </Link>
+      </div>
+      <RadioGroup
+        value={choosenCategory}
+        onChange={setChoosenCategory}
+        className="flex flex-row items-center gap-x-3 pb-2 my-3 px-1"
+      >
+        <RadioGroup.Label className="text-base self-center">Kategori :</RadioGroup.Label>
+        <div className="flex flex-row gap-x-3 self-center">
+          {categoriesData?.map((category) => (
+            <RadioGroup.Option key={category.id} as={Fragment} value={category}>
               <div
+                className={`flex flex-row items-center justify-between gap-x-2 rounded-full border border-gray-300 px-5 py-2 hover:cursor-pointer ${
+                  category.id === choosenCategory?.id
+                    ? "bg-primary text-white"
+                    : ""
+                }`}
+              >
+                <p className="text-sm font-semibold">{category.name}</p>
+                {category.id === choosenCategory?.id && (
+                  <button onClick={handleResetCategory}>
+                    <AiOutlineCloseCircle />
+                  </button>
+                )}
+              </div>
+            </RadioGroup.Option>
+          ))}
+        </div>
+      </RadioGroup>
+      <div className="min-w-full ">
+        <div className="mb-3 flex flex-row items-center border border-transparent border-y-gray-300 ps-3 font-semibold">
+          <h4 className="text-sm md:text-base w-2/12 px-3 py-3">Gambar</h4>
+          <h4 className="text-sm md:text-base w-3/12">Nama</h4>
+          <h4 className="text-sm md:text-base w-2/12 px-3">Harga</h4>
+          <h4 className="text-sm md:text-base w-2/12 px-3">Kategori</h4>
+          <div className="text-sm md:text-base flex flex-1 flex-row items-end gap-x-2 px-3 py-1">
+            <h4 className="w-2/12 self-end px-3">Aksi</h4>
+          </div>
+        </div>
+        <ul className="flex flex-col gap-y-2">
+          {productsData && productsData.length > 0 ? (
+            productsData.map(({ id, title, image, price, category }) => (
+              <li
                 key={id}
-                className="hover:cursor-pointer hover:bg-gray-100 flex flex-row items-center border rounded-xl ps-3 mb-1"
+                className="mb-1 flex flex-row items-center border border-transparent border-y-gray-200 bg-white ps-3 hover:cursor-pointer hover:bg-gray-100"
               >
                 <div className="w-2/12 px-3 py-3">
                   <img src={image} className="w-12" alt={"gambar " + title} />
                 </div>
-                <div className="w-3/12">{title}</div>
+                <div className="w-3/12 line-clamp-1">{title}</div>
                 <div className="w-2/12 px-3">
                   {"Rp. " + price.toLocaleString("id-ID")}
                 </div>
                 <div className="w-2/12 px-3">{category}</div>
-                <div className="flex-1 flex flex-row px-3 py-1 gap-x-2">
+                <div className="flex flex-1 flex-row gap-x-2 px-3 py-1">
                   <button
                     onClick={() => {
                       console.log(id);
                     }}
-                    className="flex flex-row py-1 gap-x-2 items-center text-sm text-blue-500 rounded-full outline-0 outline-blue-500 hover:bg-blue-500 hover:text-white px-3 me-2"
+                    className="me-2 flex flex-row items-center gap-x-2 rounded-full px-3 py-1 text-sm text-blue-500 outline-0 outline-blue-500 hover:bg-blue-500 hover:text-white"
                   >
                     <IconContext.Provider value={{ size: "1.5em" }}>
                       <AiOutlineEdit />
@@ -180,7 +179,7 @@ const ProductList = () => {
                     onClick={() => {
                       console.log(id);
                     }}
-                    className="flex flex-row py-1 gap-x-2 items-center text-sm text-red-500 rounded-full outline-0 outline-red-500 hover:bg-red-500 hover:text-white px-3 me-2"
+                    className="me-2 flex flex-row items-center gap-x-2 rounded-full px-3 py-1 text-sm text-red-500 outline-0 outline-red-500 hover:bg-red-500 hover:text-white"
                   >
                     <IconContext.Provider value={{ size: "1.5em" }}>
                       <AiOutlineDelete />
@@ -188,10 +187,14 @@ const ProductList = () => {
                     Hapus
                   </button>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              </li>
+            ))
+          ) : (
+            <div className="mt-2 w-full self-center text-center">
+              {isLoading ? <BeatLoader color="#4959b6" size={10}/> : "Produk tidak ditemukan"}
+            </div>
+          )}
+        </ul>
       </div>
     </main>
   );
