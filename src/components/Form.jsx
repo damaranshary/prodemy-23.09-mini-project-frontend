@@ -15,14 +15,6 @@ const Form = ({ text, product, typeSubmit }) => {
     console.log(error);
   }
 
-  useEffect(() => {
-    console.log("cek");
-  }, [img]);
-
-  if (error) {
-    console.log(error);
-  }
-
   const schema = yup.object().shape({
     title: yup.string().required("Nama produk harus diisi"),
     price: yup.number().typeError("Harga produk harus diisi"),

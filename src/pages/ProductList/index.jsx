@@ -1,20 +1,22 @@
 import {
   AiFillPlusCircle,
-  AiOutlineClose,
   AiOutlineCloseCircle,
   AiOutlineDelete,
   AiOutlineEdit,
-  AiOutlineFilter,
 } from "react-icons/ai";
-import { getAllCategories, getAllProducts } from "../../lib/swr/productSWR";
+import { getAllProducts } from "../../lib/swr/productSWR";
+import { getAllCategories } from "../../lib/swr/categorySWR";
 import { Link, useSearchParams } from "react-router-dom";
 import { Fragment, useEffect, useState } from "react";
 import { IconContext } from "react-icons";
 import { RadioGroup } from "@headlessui/react";
 import { BeatLoader } from "react-spinners";
+import Modal from "../../components/Modal";
+import Form from "../../components/Form";
 
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+
   const [getProductById, setGetProductById] = useState();
   const [typeSubmit, settypeSubmit] = useState();
 
@@ -24,7 +26,7 @@ const ProductList = () => {
   const category = searchParams.get("category");
   const query = searchParams.get("q");
 
-  const { categoriesData } = getAllCategories();
+  const { data: categoriesData } = getAllCategories();
   const {
     data: productsData,
     isLoading,
@@ -33,6 +35,7 @@ const ProductList = () => {
     choosenCategory ? choosenCategory.id : null,
     query ? query : null,
   );
+
   const [showModal, setShowModal] = useState(false);
 
   const handleOnChange = (e) => {
@@ -108,18 +111,16 @@ const ProductList = () => {
             placeholder="Cari produk"
           />
         </form>
-        <Link to="/admin/add/product">
-          <button
-            className="flex flex-row items-center gap-x-2 rounded-full bg-primary px-5 py-2 text-sm text-white hover:bg-accent"
-            onClick={() => {
-              setShowModal(true);
-              setGetProductById(null);
-              settypeSubmit("handleSubmitNewData");
-            }}
-          >
-            Tambah Produk <AiFillPlusCircle />
-          </button>
-        </Link>
+        <button
+          className="flex flex-row items-center gap-x-2 rounded-full bg-primary px-5 py-2 text-sm text-white hover:bg-accent"
+          onClick={() => {
+            setShowModal(true);
+            setGetProductById(null);
+            settypeSubmit("handleSubmitNewData");
+          }}
+        >
+          Tambah Produk <AiFillPlusCircle />
+        </button>
       </div>
       <RadioGroup
         value={choosenCategory}
@@ -162,26 +163,28 @@ const ProductList = () => {
         </div>
         <ul className="flex flex-col gap-y-2">
           {productsData && productsData.length > 0 ? (
-            productsData.map(({ id, title, image, price, category }) => (
+            productsData.map((product) => (
               <li
-                key={id}
+                key={product.id}
                 className="mb-1 flex flex-row items-center border border-transparent border-y-gray-200 bg-white ps-3 hover:cursor-pointer hover:bg-gray-100"
               >
                 <div className="w-2/12 px-3 py-3">
-                  <img src={image} className="w-12" alt={"gambar " + title} />
+                  <img
+                    src={product.image}
+                    className="w-12"
+                    alt={"gambar " + product.title}
+                  />
                 </div>
-                <div className="line-clamp-1 w-3/12">{title}</div>
+                <div className="line-clamp-1 w-3/12">{product.title}</div>
                 <div className="w-2/12 px-3">
-                  {"Rp. " + price.toLocaleString("id-ID")}
+                  {"Rp. " + product.price.toLocaleString("id-ID")}
                 </div>
-                <div className="w-2/12 px-3">{category}</div>
+                <div className="w-2/12 px-3">{product.category}</div>
                 <div className="flex flex-1 flex-row gap-x-2 px-3 py-1">
                   <button
                     onClick={() => {
                       setShowModal(true);
-                      setGetProductById(
-                        filteredProducts.filter((list) => list.id == id)[0],
-                      );
+                      setGetProductById(product);
                       settypeSubmit("handleUpdateData");
                     }}
                     className="me-2 flex flex-row items-center gap-x-2 rounded-full px-3 py-1 text-sm text-blue-500 outline-0 outline-blue-500 hover:bg-blue-500 hover:text-white"
