@@ -15,6 +15,8 @@ import { BeatLoader } from "react-spinners";
 
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [getProductById, setGetProductById] = useState();
+  const [typeSubmit, settypeSubmit] = useState();
 
   const [searchValue, setSearchValue] = useState("");
   const [choosenCategory, setChoosenCategory] = useState(null);
@@ -31,6 +33,7 @@ const ProductList = () => {
     choosenCategory ? choosenCategory.id : null,
     query ? query : null,
   );
+  const [showModal, setShowModal] = useState(false);
 
   const handleOnChange = (e) => {
     setSearchValue(e.target.value);
@@ -90,7 +93,7 @@ const ProductList = () => {
 
   return (
     <main className="m-5 flex min-h-screen flex-col overflow-x-auto lg:container sm:mx-10 lg:mx-auto lg:mb-10">
-      <h1 className="md:text-xl text-2xl font-bold">
+      <h1 className="text-2xl font-bold md:text-xl">
         Daftar Produk {choosenCategory ? " - " + choosenCategory.name : ""}
       </h1>
       <div className="container my-5 flex w-full flex-row items-center justify-between gap-x-5 px-1">
@@ -106,7 +109,14 @@ const ProductList = () => {
           />
         </form>
         <Link to="/admin/add/product">
-          <button className="flex flex-row items-center gap-x-2 rounded-full bg-primary px-5 py-2 text-sm text-white hover:bg-accent">
+          <button
+            className="flex flex-row items-center gap-x-2 rounded-full bg-primary px-5 py-2 text-sm text-white hover:bg-accent"
+            onClick={() => {
+              setShowModal(true);
+              setGetProductById(null);
+              settypeSubmit("handleSubmitNewData");
+            }}
+          >
             Tambah Produk <AiFillPlusCircle />
           </button>
         </Link>
@@ -114,9 +124,11 @@ const ProductList = () => {
       <RadioGroup
         value={choosenCategory}
         onChange={setChoosenCategory}
-        className="flex flex-row items-center gap-x-3 pb-2 my-3 px-1"
+        className="my-3 flex flex-row items-center gap-x-3 px-1 pb-2"
       >
-        <RadioGroup.Label className="text-base self-center">Kategori :</RadioGroup.Label>
+        <RadioGroup.Label className="self-center text-base">
+          Kategori :
+        </RadioGroup.Label>
         <div className="flex flex-row gap-x-3 self-center">
           {categoriesData?.map((category) => (
             <RadioGroup.Option key={category.id} as={Fragment} value={category}>
@@ -140,11 +152,11 @@ const ProductList = () => {
       </RadioGroup>
       <div className="min-w-full ">
         <div className="mb-3 flex flex-row items-center border border-transparent border-y-gray-300 ps-3 font-semibold">
-          <h4 className="text-sm md:text-base w-2/12 px-3 py-3">Gambar</h4>
-          <h4 className="text-sm md:text-base w-3/12">Nama</h4>
-          <h4 className="text-sm md:text-base w-2/12 px-3">Harga</h4>
-          <h4 className="text-sm md:text-base w-2/12 px-3">Kategori</h4>
-          <div className="text-sm md:text-base flex flex-1 flex-row items-end gap-x-2 px-3 py-1">
+          <h4 className="w-2/12 px-3 py-3 text-sm md:text-base">Gambar</h4>
+          <h4 className="w-3/12 text-sm md:text-base">Nama</h4>
+          <h4 className="w-2/12 px-3 text-sm md:text-base">Harga</h4>
+          <h4 className="w-2/12 px-3 text-sm md:text-base">Kategori</h4>
+          <div className="flex flex-1 flex-row items-end gap-x-2 px-3 py-1 text-sm md:text-base">
             <h4 className="w-2/12 self-end px-3">Aksi</h4>
           </div>
         </div>
@@ -158,7 +170,7 @@ const ProductList = () => {
                 <div className="w-2/12 px-3 py-3">
                   <img src={image} className="w-12" alt={"gambar " + title} />
                 </div>
-                <div className="w-3/12 line-clamp-1">{title}</div>
+                <div className="line-clamp-1 w-3/12">{title}</div>
                 <div className="w-2/12 px-3">
                   {"Rp. " + price.toLocaleString("id-ID")}
                 </div>
@@ -166,7 +178,11 @@ const ProductList = () => {
                 <div className="flex flex-1 flex-row gap-x-2 px-3 py-1">
                   <button
                     onClick={() => {
-                      console.log(id);
+                      setShowModal(true);
+                      setGetProductById(
+                        filteredProducts.filter((list) => list.id == id)[0],
+                      );
+                      settypeSubmit("handleUpdateData");
                     }}
                     className="me-2 flex flex-row items-center gap-x-2 rounded-full px-3 py-1 text-sm text-blue-500 outline-0 outline-blue-500 hover:bg-blue-500 hover:text-white"
                   >
@@ -191,11 +207,22 @@ const ProductList = () => {
             ))
           ) : (
             <div className="mt-2 w-full self-center text-center">
-              {isLoading ? <BeatLoader color="#4959b6" size={10}/> : "Produk tidak ditemukan"}
+              {isLoading ? (
+                <BeatLoader color="#4959b6" size={10} />
+              ) : (
+                "Produk tidak ditemukan"
+              )}
             </div>
           )}
         </ul>
       </div>
+      <Modal isVisible={showModal} onClose={setShowModal}>
+        <Form
+          text="Tambah Produk"
+          product={getProductById}
+          typeSubmit={typeSubmit}
+        />
+      </Modal>
     </main>
   );
 };
