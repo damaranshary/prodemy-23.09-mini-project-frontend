@@ -1,28 +1,31 @@
 import {
   AiFillPlusCircle,
+  AiOutlineArrowDown,
+  AiOutlineArrowUp,
   AiOutlineCloseCircle,
-  AiOutlineDelete,
-  AiOutlineEdit,
 } from "react-icons/ai";
 import { getAllProducts } from "../../lib/swr/productSWR";
 import { getAllCategories } from "../../lib/swr/categorySWR";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Fragment, useEffect, useState } from "react";
-import { IconContext } from "react-icons";
 import { RadioGroup } from "@headlessui/react";
 import { BeatLoader } from "react-spinners";
-import Modal from "../../components/Modal";
-import Form from "../../components/Form";
+import FormModal from "../../components/Modal/FormModal";
+import Form from "../../components/Form/Form";
+import { deleteProduct } from "../../lib/axios/productAxios";
+import ProductCard from "../../components/Card/ProductCard";
 
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [getProductById, setGetProductById] = useState();
-  const [typeSubmit, settypeSubmit] = useState();
+  const [typeSubmit, setTypeSubmit] = useState();
 
   const [searchValue, setSearchValue] = useState("");
   const [choosenCategory, setChoosenCategory] = useState(null);
+  const [sortByValue, setSortByValue] = useState(null);
 
+  const sortBy = searchParams.get("sortBy");
   const category = searchParams.get("category");
   const query = searchParams.get("q");
 
@@ -31,15 +34,42 @@ const ProductList = () => {
     data: productsData,
     isLoading,
     isError,
+    mutate,
   } = getAllProducts(
     choosenCategory ? choosenCategory.id : null,
     query ? query : null,
+    sortBy ? sortBy : null,
   );
 
-  const [showModal, setShowModal] = useState(false);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+
+  const handleDeleteProduct = async (id) => {
+    await deleteProduct(id)
+      .finally(() => mutate());
+  };
 
   const handleOnChange = (e) => {
     setSearchValue(e.target.value);
+  };
+
+  const handleSortByName = () => {
+    if (sortByValue === "nameAsc") {
+      setSortByValue("nameDesc");
+    } else {
+      setSortByValue("nameAsc");
+    }
+  };
+
+  const handleSortByPrice = () => {
+    if (sortByValue === "priceAsc") {
+      setSortByValue("priceDesc");
+    } else {
+      setSortByValue("priceAsc");
+    }
+  };
+
+  const handleResetSortBy = () => {
+    setSortByValue(null);
   };
 
   const handleSearchOnSubmit = (e) => {
@@ -76,6 +106,10 @@ const ProductList = () => {
   }, []);
 
   useEffect(() => {
+    sortBy && setSortByValue(sortBy);
+  }, []);
+
+  useEffect(() => {
     category && categoriesData
       ? setChoosenCategory(
           categoriesData?.find((cat) => cat.id === parseInt(category)),
@@ -92,10 +126,19 @@ const ProductList = () => {
       });
   }, [choosenCategory]);
 
+  useEffect(() => {
+    sortByValue &&
+      setSearchParams((prevParams) => {
+        const newParams = new URLSearchParams(prevParams);
+        newParams.set("sortBy", sortByValue);
+        return newParams.toString();
+      });
+  }, [sortByValue]);
+
   if (isError) return <div>Error...</div>;
 
   return (
-    <main className="m-5 flex min-h-screen flex-col overflow-x-auto lg:container sm:mx-10 lg:mx-auto lg:mb-10">
+    <main className="m-5 flex min-h-screen flex-col overflow-x-auto pe-5 lg:container sm:mx-10 lg:mx-auto lg:mb-10">
       <h1 className="text-2xl font-bold md:text-xl">
         Daftar Produk {choosenCategory ? " - " + choosenCategory.name : ""}
       </h1>
@@ -114,9 +157,9 @@ const ProductList = () => {
         <button
           className="flex flex-row items-center gap-x-2 rounded-full bg-primary px-5 py-2 text-sm text-white hover:bg-accent"
           onClick={() => {
-            setShowModal(true);
+            setIsFormModalOpen(true);
             setGetProductById(null);
-            settypeSubmit("handleSubmitNewData");
+            setTypeSubmit("handleSubmitNewData");
           }}
         >
           Tambah Produk <AiFillPlusCircle />
@@ -154,10 +197,24 @@ const ProductList = () => {
       <div className="min-w-full ">
         <div className="mb-3 flex flex-row items-center border border-transparent border-y-gray-300 ps-3 font-semibold">
           <h4 className="w-2/12 px-3 py-3 text-sm md:text-base">Gambar</h4>
-          <h4 className="w-3/12 text-sm md:text-base">Nama</h4>
-          <h4 className="w-2/12 px-3 text-sm md:text-base">Harga</h4>
+          <button
+            className="flex w-3/12 flex-row items-center gap-x-2 border-none bg-none text-sm hover:cursor-pointer md:text-base"
+            onClick={handleSortByName}
+          >
+            Nama
+            {sortByValue === "nameAsc" && <AiOutlineArrowDown />}
+            {sortByValue === "nameDesc" && <AiOutlineArrowUp />}
+          </button>
+          <button
+            className="flex w-2/12 flex-row items-center gap-x-2 border-none bg-none px-3 text-sm hover:cursor-pointer focus:outline-none md:text-base"
+            onClick={handleSortByPrice}
+          >
+            Harga
+            {sortByValue === "priceAsc" && <AiOutlineArrowDown />}
+            {sortByValue === "priceDesc" && <AiOutlineArrowUp />}
+          </button>
           <h4 className="w-2/12 px-3 text-sm md:text-base">Kategori</h4>
-          <div className="flex flex-1 flex-row items-end gap-x-2 px-3 py-1 text-sm md:text-base">
+          <div className="flex flex-1 flex-row items-end gap-x-2 border-none bg-none px-3 py-1 text-sm hover:cursor-pointer focus:outline-none md:text-base">
             <h4 className="w-2/12 self-end px-3">Aksi</h4>
           </div>
         </div>
@@ -168,44 +225,13 @@ const ProductList = () => {
                 key={product.id}
                 className="mb-1 flex flex-row items-center border border-transparent border-y-gray-200 bg-white ps-3 hover:cursor-pointer hover:bg-gray-100"
               >
-                <div className="w-2/12 px-3 py-3">
-                  <img
-                    src={product.image}
-                    className="w-12"
-                    alt={"gambar " + product.title}
-                  />
-                </div>
-                <div className="line-clamp-1 w-3/12">{product.title}</div>
-                <div className="w-2/12 px-3">
-                  {"Rp. " + product.price.toLocaleString("id-ID")}
-                </div>
-                <div className="w-2/12 px-3">{product.category}</div>
-                <div className="flex flex-1 flex-row gap-x-2 px-3 py-1">
-                  <button
-                    onClick={() => {
-                      setShowModal(true);
-                      setGetProductById(product);
-                      settypeSubmit("handleUpdateData");
-                    }}
-                    className="me-2 flex flex-row items-center gap-x-2 rounded-full px-3 py-1 text-sm text-blue-500 outline-0 outline-blue-500 hover:bg-blue-500 hover:text-white"
-                  >
-                    <IconContext.Provider value={{ size: "1.5em" }}>
-                      <AiOutlineEdit />
-                    </IconContext.Provider>
-                    <span>Edit</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      console.log(id);
-                    }}
-                    className="me-2 flex flex-row items-center gap-x-2 rounded-full px-3 py-1 text-sm text-red-500 outline-0 outline-red-500 hover:bg-red-500 hover:text-white"
-                  >
-                    <IconContext.Provider value={{ size: "1.5em" }}>
-                      <AiOutlineDelete />
-                    </IconContext.Provider>
-                    Hapus
-                  </button>
-                </div>
+                <ProductCard
+                  product={product}
+                  handleDeleteProduct={handleDeleteProduct}
+                  setIsFormModalOpen={setIsFormModalOpen}
+                  setGetProductById={setGetProductById}
+                  setTypeSubmit={setTypeSubmit}
+                />
               </li>
             ))
           ) : (
@@ -219,13 +245,14 @@ const ProductList = () => {
           )}
         </ul>
       </div>
-      <Modal isVisible={showModal} onClose={setShowModal}>
+
+      <FormModal isVisible={isFormModalOpen} onClose={setIsFormModalOpen}>
         <Form
           text="Tambah Produk"
           product={getProductById}
           typeSubmit={typeSubmit}
         />
-      </Modal>
+      </FormModal>
     </main>
   );
 };
