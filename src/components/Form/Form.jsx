@@ -9,7 +9,9 @@ import { getAllCategories } from "../../lib/swr/categorySWR";
 const Form = ({ text, product, typeSubmit }) => {
   const { data: getCategories, isLoading, error } = getAllCategories();
 
-  const [img, setImg] = useState(product != null ? { url: product.image } : null);
+  const [img, setImg] = useState(
+    product != null ? { url: product.image } : null,
+  );
 
   if (error) {
     console.log(error);
@@ -29,7 +31,10 @@ const Form = ({ text, product, typeSubmit }) => {
   } = useForm({ resolver: yupResolver(schema) });
 
   const handleOnChange = (event) => {
-    const data = { file: event.target.files[0], url: URL.createObjectURL(event.target.files[0]) };
+    const data = {
+      file: event.target.files[0],
+      url: URL.createObjectURL(event.target.files[0]),
+    };
 
     console.log(data);
     setImg(data);
@@ -40,7 +45,8 @@ const Form = ({ text, product, typeSubmit }) => {
       title: data.title,
       image: img.file,
       price: data.price,
-      categoryId: getCategories.filter((list) => list.name == data.category)[0].id,
+      categoryId: getCategories.filter((list) => list.name == data.category)[0]
+        .id,
     };
 
     addNewProduct(payload, reset, setImg);
@@ -51,7 +57,8 @@ const Form = ({ text, product, typeSubmit }) => {
       title: data.title,
       image: img.file,
       price: data.price,
-      categoryId: getCategories.filter((list) => list.name == data.category)[0].id,
+      categoryId: getCategories.filter((list) => list.name == data.category)[0]
+        .id,
     };
 
     updateProduct(payload, product.id);
@@ -59,27 +66,48 @@ const Form = ({ text, product, typeSubmit }) => {
 
   return (
     <>
-      <h1 className="text-lg font-semibold text-center">{text}</h1>
-      <form onSubmit={handleSubmit(eval(typeSubmit))} className="flex flex-col gap-3 p-3">
+      <h1 className="mt-3 text-center text-lg font-semibold">{text}</h1>
+      <form
+        onSubmit={handleSubmit(eval(typeSubmit))}
+        className="flex flex-col gap-3 p-3"
+      >
         <div className="flex flex-col">
           <label htmlFor="title">Nama Produk</label>
-          <input {...register("title")} defaultValue={product?.title} id="title" type="text" className="inputForm" placeholder="Nama Produk" />
+          <input
+            {...register("title")}
+            defaultValue={product?.title}
+            id="title"
+            type="text"
+            className="inputForm"
+            placeholder="Nama Produk"
+          />
           <p className="text-xs text-red-500">{errors.title?.message}</p>
         </div>
         <div className="flex flex-col">
           <label htmlFor="price">Harga</label>
-          <input {...register("price")} defaultValue={product?.price} id="price" type="text" className="inputForm" placeholder="Harga" />
+          <input
+            {...register("price")}
+            defaultValue={product?.price}
+            id="price"
+            type="text"
+            className="inputForm"
+            placeholder="Harga"
+          />
           <p className="text-xs text-red-500">{errors.price?.message}</p>
         </div>
         <div className="flex flex-col">
           <label htmlFor="image">Upload Gambar</label>
           <div className="flex flex-col items-center">
             {img ? (
-              <div className="w-44 h-28 border-2 rounded-lg border-black border-dashed flex flex-col justify-center items-center">
-                <div className="border-black h-[80%] relative">
-                  <img src={img.url} alt="Gambar Produk" className="text-sm h-full" />
+              <div className="flex h-28 w-44 flex-col items-center justify-center rounded-lg border-2 border-dashed border-primary">
+                <div className="relative h-[80%]">
+                  <img
+                    src={img.url}
+                    alt="Gambar Produk"
+                    className="h-full text-sm"
+                  />
                   <button
-                    className="text-black text-xs font-bold absolute right-1 top-0"
+                    className="absolute right-1 top-0 text-xs font-bold text-black"
                     onClick={() => {
                       setImg(null);
                     }}
@@ -89,9 +117,19 @@ const Form = ({ text, product, typeSubmit }) => {
                 </div>
               </div>
             ) : (
-              <div onClick={() => document.getElementById("image").click()} className="w-44 h-28 border-2 rounded-lg border-black border-dashed flex flex-col justify-center items-center hover:cursor-pointer">
-                <input id="image" onChange={handleOnChange} type="file" className="inputForm" hidden required />
-                <AiOutlineCloudUpload className="w-[50%] h-[50%]" />
+              <div
+                onClick={() => document.getElementById("image").click()}
+                className="group flex h-28 w-44 flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 hover:cursor-pointer hover:border-accent"
+              >
+                <input
+                  id="image"
+                  onChange={handleOnChange}
+                  type="file"
+                  className="inputForm"
+                  hidden
+                  required
+                />
+                <AiOutlineCloudUpload className="h-[50%] w-[50%] fill-slate-300 group-hover:fill-accent" />
               </div>
             )}
           </div>
@@ -102,7 +140,12 @@ const Form = ({ text, product, typeSubmit }) => {
             <div>Loading....</div>
           ) : (
             <>
-              <select {...register("category")} id="category" className="inputForm" defaultValue={product?.category}>
+              <select
+                {...register("category")}
+                id="category"
+                className="inputForm"
+                defaultValue={product?.category}
+              >
                 <option value="">Pilih Kategori</option>
                 {getCategories?.map((list) => (
                   <option key={list.id} value={list.name}>
@@ -114,7 +157,10 @@ const Form = ({ text, product, typeSubmit }) => {
             </>
           )}
         </div>
-        <button type="submit" className="border-2 rounded-lg hover:bg-slate-300">
+        <button
+          type="submit"
+          className="rounded-full border-2 bg-primary p-1 text-white hover:bg-accent"
+        >
           Submit
         </button>
       </form>
