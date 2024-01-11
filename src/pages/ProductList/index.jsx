@@ -138,7 +138,7 @@ const ProductList = () => {
   if (isError) return <div>Error...</div>;
 
   return (
-    <main className="m-5 flex min-h-screen flex-col overflow-x-auto pe-5 lg:container sm:mx-10 lg:mx-auto lg:mb-10">
+    <main className="m-5 flex min-h-screen flex-col overflow-x-auto pe-5 sm:mx-auto lg:mb-10">
       <h1 className="text-2xl font-bold md:text-xl">
         Daftar Produk {choosenCategory ? " - " + choosenCategory.name : ""}
       </h1>

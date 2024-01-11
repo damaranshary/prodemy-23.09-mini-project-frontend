@@ -2,7 +2,7 @@ import useSWR from "swr";
 import { fetchProducts } from "../axios/productAxios";
 
 export const getAllProducts = (category, query, sortBy) => {
-  let url = "http://localhost:8081/products";
+  let url = `${import.meta.env.VITE_API_URL}/products`;
 
   // if category is not null
   if (category) {
