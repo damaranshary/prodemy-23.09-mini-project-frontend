@@ -1,5 +1,5 @@
-import useSWR from "swr";
-import { fetchProducts } from "../axios/productAxios";
+import useSWR from "swr"
+import { fetchProducts } from "../axios/productAxios"
 
 export const getAllProducts = (category, query, sortBy) => {
   let url = "http://localhost:8080/products";
