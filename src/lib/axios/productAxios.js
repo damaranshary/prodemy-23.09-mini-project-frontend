@@ -8,7 +8,7 @@ export const fetchProducts = async (url) => {
 
 export const addNewProduct = async (payload, reset, setImg) => {
   const data = await axios
-    .post("http://localhost:8080/products", payload, {
+    .post("http://localhost:8081/products", payload, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -25,7 +25,7 @@ export const addNewProduct = async (payload, reset, setImg) => {
 
 export const updateProduct = async (payload, id) => {
   const data = await axios
-    .put(`http://localhost:8080/products/${id}`, payload, {
+    .put(`http://localhost:8081/products/${id}`, payload, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -40,7 +40,7 @@ export const updateProduct = async (payload, id) => {
 
 export const deleteProduct = async (id) => {
   const data = await axios
-    .delete(`http://localhost:8080/products/${id}`)
+    .delete(`http://localhost:8081/products/${id}`)
     .then((res) => res.data)
     .catch((error) => console.log(error));
 

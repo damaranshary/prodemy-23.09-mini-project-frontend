@@ -10,3 +10,7 @@
     margin: 0;
   }
 }
+
+.inputForm {
+  @apply rounded-lg border border-gray-300 px-2 py-1 text-sm focus:outline-[#4959b6];
+}

@@ -1,3 +1,5 @@
+import { AiFillCloseCircle, AiOutlineClose } from "react-icons/ai";
+
 const Modal = ({ isVisible, onClose, children }) => {
   if (!isVisible) {
     return null;
@@ -10,12 +12,19 @@ const Modal = ({ isVisible, onClose, children }) => {
   };
 
   return (
-    <div id="wrapper" className="flex justify-center items-center fixed inset-0 bg-black bg-opacity-10 backdrop-blur-[2px] overflow-y-scroll">
-      <div className="w-1/4 flex flex-col">
-        <button id="wrapper" className="text-white text-xl place-self-end" onClick={handleClose}>
-          X
-        </button>
-        <div className="bg-white p-5 rounded-lg">{children}</div>
+    <div
+      id="wrapper"
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-10 backdrop-blur-[2px]"
+    >
+      <div className="w-1/4">
+        <div className="relative rounded-lg bg-white p-5">
+          <AiFillCloseCircle
+            onClick={() => onClose(false)}
+            className="absolute right-1 top-1 fill-primary hover:cursor-pointer hover:fill-accent"
+            size={20}
+          />
+          {children}
+        </div>
       </div>
     </div>
   );
