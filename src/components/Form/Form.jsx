@@ -1,10 +1,10 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { addNewProduct, updateProduct } from "../lib/axios/productAxios";
-import { useEffect, useState } from "react";
+import { addNewProduct, updateProduct } from "../../lib/axios/productAxios";
+import { useState } from "react";
 import { AiOutlineCloudUpload } from "react-icons/ai";
-import { getAllCategories } from "../lib/swr/categorySWR";
+import { getAllCategories } from "../../lib/swr/categorySWR";
 
 const Form = ({ text, product, typeSubmit }) => {
   const { data: getCategories, isLoading, error } = getAllCategories();
