@@ -1,17 +1,25 @@
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { addNewProduct, updateProduct } from "../../lib/axios/productAxios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlineCloudUpload } from "react-icons/ai";
 import { getAllCategories } from "../../lib/swr/categorySWR";
 
 const Form = ({ text, product, typeSubmit }) => {
   const { data: getCategories, isLoading, error } = getAllCategories();
-
-  const [img, setImg] = useState(
-    product != null ? { url: product.image } : null,
+  console.log(
+    product &&
+      getCategories.filter((category) => category.name == product?.category)[0]
+        .id,
   );
+
+  const [img, setImg] = useState();
+
+  useEffect(() => {
+    setImg(product ? { url: product.image } : null);
+    console.log(img);
+  }, [product]);
 
   if (error) {
     console.log(error);
@@ -45,8 +53,7 @@ const Form = ({ text, product, typeSubmit }) => {
       title: data.title,
       image: img.file,
       price: data.price,
-      categoryId: getCategories.filter((list) => list.name == data.category)[0]
-        .id,
+      categoryId: data.category,
     };
 
     addNewProduct(payload, reset, setImg);
@@ -57,8 +64,7 @@ const Form = ({ text, product, typeSubmit }) => {
       title: data.title,
       image: img.file,
       price: data.price,
-      categoryId: getCategories.filter((list) => list.name == data.category)[0]
-        .id,
+      categoryId: data.category,
     };
 
     updateProduct(payload, product.id);
@@ -144,11 +150,17 @@ const Form = ({ text, product, typeSubmit }) => {
                 {...register("category")}
                 id="category"
                 className="inputForm"
-                defaultValue={product?.category}
+                defaultValue={
+                  product
+                    ? getCategories.filter(
+                        (category) => category.name == product?.category,
+                      )[0].id
+                    : null
+                }
               >
                 <option value="">Pilih Kategori</option>
                 {getCategories?.map((list) => (
-                  <option key={list.id} value={list.name}>
+                  <option key={list.id} value={list.id}>
                     {list.name}
                   </option>
                 ))}

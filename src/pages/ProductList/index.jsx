@@ -44,8 +44,7 @@ const ProductList = () => {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
 
   const handleDeleteProduct = async (id) => {
-    await deleteProduct(id)
-      .finally(() => mutate());
+    await deleteProduct(id).finally(() => mutate());
   };
 
   const handleOnChange = (e) => {

@@ -12,6 +12,12 @@ export const addNewProduct = async (payload, reset, setImg) => {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      onUploadProgress: (progressEvent) => {
+        const progress = Math.round(
+          (progressEvent.loaded / progressEvent.total) * 100,
+        );
+        console.log(progress);
+      },
     })
     .then(() => {
       alert("Successfully add product!");
