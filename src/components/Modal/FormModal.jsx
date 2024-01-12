@@ -49,7 +49,11 @@ const Modal = ({ isVisible, onClose, children }) => {
           className="absolute right-1 top-1 fill-red-500 hover:cursor-pointer hover:fill-red-700"
           size={20}
         />
+        {/* gk di retrun null animasi atau trasition pas close modalnya jadi gk ada */}
         {children}
+
+        {/* pake return null animasi atau transition pas close modalnya jadi ada, tapi gk kebaca default valuenya*/}
+        {isVisible ? children : null}
       </div>
     </div>
   );

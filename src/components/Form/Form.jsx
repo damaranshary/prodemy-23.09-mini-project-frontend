@@ -36,7 +36,19 @@ const Form = ({ text, product, typeSubmit }) => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({ resolver: yupResolver(schema) });
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      title: product?.title,
+      price: product?.price,
+      image: product?.image,
+      category: product
+        ? getCategories.filter(
+            (category) => category.name == product?.category,
+          )[0].id
+        : "",
+    },
+  });
 
   const handleOnChange = (event) => {
     const data = {
@@ -81,7 +93,6 @@ const Form = ({ text, product, typeSubmit }) => {
           <label htmlFor="title">Nama Produk</label>
           <input
             {...register("title")}
-            defaultValue={product?.title}
             id="title"
             type="text"
             className="inputForm"
@@ -93,7 +104,6 @@ const Form = ({ text, product, typeSubmit }) => {
           <label htmlFor="price">Harga</label>
           <input
             {...register("price")}
-            defaultValue={product?.price}
             id="price"
             type="text"
             className="inputForm"
@@ -150,13 +160,6 @@ const Form = ({ text, product, typeSubmit }) => {
                 {...register("category")}
                 id="category"
                 className="inputForm"
-                defaultValue={
-                  product
-                    ? getCategories.filter(
-                        (category) => category.name == product?.category,
-                      )[0].id
-                    : null
-                }
               >
                 <option value="">Pilih Kategori</option>
                 {getCategories?.map((list) => (
