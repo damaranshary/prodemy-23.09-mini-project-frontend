@@ -12,30 +12,53 @@ import { getAllProducts } from "../../lib/swr/productSWR";
 import { getAllCategories } from "../../lib/swr/categorySWR";
 import QuantityButton from "../../components/Button/QuantityButton";
 import { BeatLoader } from "react-spinners";
+import { AiFillPlusCircle, AiOutlinePlusCircle } from "react-icons/ai";
+import { useSearchParams } from "react-router-dom";
 
 function Home() {
   const dispatch = useDispatch();
   const { cart } = useSelector((state) => state.products);
-  const [query, setQuery] = useState(null);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryParams = searchParams.get("q");
+
+  const [query, setQuery] = useState("");
   const [sort, setSort] = useState(null);
   const [category, setCategory] = useState(null);
-
-  useEffect(() => {
-    // console.log(query)
-    // console.log(sort)
-    // console.log(category)
-  }, [cart, sort, category]);
 
   const {
     data: productData,
     isLoading,
     isError,
-  } = getAllProducts(category, query, sort);
+  } = getAllProducts(category, queryParams ? queryParams : null, sort);
 
   const { data: categoriesData } = getAllCategories();
 
   const handleSortChange = (event) => {
     setSort(event.target.value);
+  };
+
+  const handleSearchChange = (event) => {
+    setQuery(event.target.value);
+  };
+
+  const handleSearchOnSubmit = (e) => {
+    e.preventDefault();
+
+    if (query === "") {
+      setSearchParams((prevParams) => {
+        const newParams = new URLSearchParams(prevParams);
+        newParams.delete("q");
+        return newParams.toString();
+      });
+      return;
+    }
+
+    setSearchParams((prevParams) => {
+      const newParams = new URLSearchParams(prevParams);
+      newParams.set("q", query);
+      return newParams.toString();
+    });
   };
 
   const handleAddToCart = (item) => {
@@ -50,94 +73,112 @@ function Home() {
     alert("Produk berhasil di order");
     dispatch(reserCart());
   };
-  const handleDeleteProduct = (id) => {
-    dispatch(removeFromCart(id));
-  };
+
+  useEffect(() => {
+    query && setSearchValue(query);
+  }, []);
 
   if (isError) return <div>Error...</div>;
 
   return (
-    <div className="flex justify-between">
-      <div className="flex w-2/3 flex-col gap-7">
+    <div className="relative m-5 flex min-h-screen flex-row justify-between gap-x-10 overflow-x-auto pe-5 sm:mx-auto lg:mb-10">
+      <div className="flex flex-col gap-7 sm:w-6/12 md:w-7/12 lg:w-8/12">
         <h1 className="mt-6 text-2xl font-bold">Daftar Produk</h1>
         <div className="flex gap-3 ">
           <button
             onClick={() => {
-              setSort(null);
-              setQuery(null);
               setCategory(null);
             }}
-            className="w-32 rounded-lg bg-primary p-3 text-sm text-white"
+            className={`flex flex-row items-center justify-between gap-x-2 rounded-full border border-gray-300 px-5 py-2 hover:cursor-pointer font-semibold ${
+              category === null
+                ? "bg-primary p-3 text-sm text-white"
+                : "bg-white text-primary"
+            }`}
           >
             Semua Produk
           </button>
-          {categoriesData?.map((Categories) => (
+          {categoriesData?.map((categoryData) => (
             <button
-              key={Categories.id}
+              key={categoryData.id}
               onClick={() => {
-                setCategory(Categories.id);
+                setCategory(categoryData.id);
               }}
-              className="w-32 rounded-lg bg-primary p-3 text-sm text-white"
+              className={`flex flex-row items-center justify-between gap-x-2 rounded-full border border-gray-300 px-5 py-2 hover:cursor-pointer font-semibold ${
+                categoryData.id === category
+                  ? "bg-primary text-white"
+                  : "bg-white"
+              }`}
             >
-              {Categories.name}
+              {categoryData.name}
             </button>
           ))}
         </div>
         <div>
-          <div className="flex">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="flex rounded-full border border-gray-500 px-5 py-2 md:w-96 md:flex-initial"
-            />
+          <div className="flex justify-between">
+            <form onSubmit={handleSearchOnSubmit}>
+              <input
+                type="text"
+                id="search"
+                name="search"
+                value={query}
+                onChange={handleSearchChange}
+                className="flex-1 rounded-full border border-gray-300 px-5 py-2 md:w-96 md:flex-initial"
+                placeholder="Cari produk"
+              />
+            </form>
             <select
               onChange={handleSortChange}
-              className="ml-auto rounded-full border border-gray-500 p-2"
+              className="ms-0 rounded-full border border-gray-300 px-5"
             >
-              <option value="nameDesc">Name: High to Low</option>
-              <option value="nameAsc">Name: Low to High</option>
-              <option value="priceDesc">Price: Low to High</option>
-              <option value="priceAsc">Price: Low to High</option>
+              <option value="nameAsc">Nama A-Z</option>
+              <option value="nameDesc">Nama Z-A</option>
+              <option value="priceDesc">Harga Tertinggi</option>
+              <option value="priceAsc">Harga Terendah</option>
             </select>
           </div>
-          <div className="mt-8 grid w-fit grid-cols-3 gap-10 ">
+          <div className="mt-8 grid w-full grid-cols-2 gap-5 lg:grid-cols-3 ">
             {isLoading ? (
               <BeatLoader color="#4959b6" size={10} />
             ) : (
               productData.map((product) => (
                 <div
                   key={product.id}
-                  className="flex flex-col gap-3 rounded-xl bg-slate-100 p-2 shadow-xl"
+                  className="flex flex-col gap-3 rounded-xl border border-gray-300 p-4 hover:border-primary hover:bg-primary hover:text-white"
                 >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={product.image}
-                      alt={product.image}
-                      className="h-28 w-28 rounded-md object-cover"
-                    />
-                    <div className="w-full">
-                      <h3 className="justify-center text-[15px] font-semibold">
+                  <div className="flex flex-row gap-4">
+                    <div className="h-24">
+                      <img
+                        src={product.image}
+                        className="h-full w-24 rounded-xl object-cover"
+                        alt={"gambar " + product.title}
+                      />
+                    </div>
+                    <div className="flex w-full flex-col">
+                      <p className="mb-1 self-end text-sm">
+                        {product.category}
+                      </p>
+                      <h3 className="line-clamp-1 justify-center text-sm">
                         {product.title}
                       </h3>
-                      <p className="text-[15px] font-semibold">
+                      <p className="text-base font-semibold">
                         Rp. {product.price.toLocaleString("Id-id")}
                       </p>
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className="self-end rounded-full text-3xl text-white hover:text-white focus:outline-none"
+                      >
+                        <AiFillPlusCircle />
+                      </button>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    className="rounded-full bg-primary py-1 text-white"
-                  >
-                    Add to Cart
-                  </button>
                 </div>
               ))
             )}
           </div>
         </div>
       </div>
-      <div className="flex h-fit w-3/12 flex-col gap-1 overflow-hidden rounded-2xl">
-        <div className="flex w-full flex-col gap-5 bg-slate-200 p-5 ">
+      <div className="border-xl sticky right-0 top-0 flex h-fit flex-1 flex-col gap-1 rounded-2xl border border-gray-300">
+        <div className="flex w-full flex-col gap-5 p-5 ">
           <h1 className="text-lg font-semibold">Daftar Pesanan</h1>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-5">
@@ -161,8 +202,6 @@ function Home() {
               ))}
             </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-7 bg-slate-200 p-5">
           <div className="flex justify-between">
             <h1 className="tex-sm font-semibold">Total</h1>
             <h1 className="tex-sm font-semibold">
