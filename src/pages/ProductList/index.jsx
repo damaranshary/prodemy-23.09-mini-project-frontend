@@ -20,6 +20,7 @@ const ProductList = () => {
 
   const [getProductById, setGetProductById] = useState();
   const [typeSubmit, setTypeSubmit] = useState();
+  const [title, setTitle] = useState();
 
   const [searchValue, setSearchValue] = useState("");
   const [choosenCategory, setChoosenCategory] = useState(null);
@@ -159,6 +160,7 @@ const ProductList = () => {
             setIsFormModalOpen(true);
             setGetProductById(null);
             setTypeSubmit("handleSubmitNewData");
+            setTitle("Tambah Produk");
           }}
         >
           Tambah Produk <AiFillPlusCircle />
@@ -230,6 +232,7 @@ const ProductList = () => {
                   setIsFormModalOpen={setIsFormModalOpen}
                   setGetProductById={setGetProductById}
                   setTypeSubmit={setTypeSubmit}
+                  setTitle={setTitle}
                 />
               </li>
             ))
@@ -247,9 +250,10 @@ const ProductList = () => {
 
       <FormModal isVisible={isFormModalOpen} onClose={setIsFormModalOpen}>
         <Form
-          text="Tambah Produk"
+          text={title}
           product={getProductById}
           typeSubmit={typeSubmit}
+          mutate={mutate}
         />
       </FormModal>
     </main>

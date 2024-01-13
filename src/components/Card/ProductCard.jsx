@@ -9,6 +9,7 @@ const ProductCard = ({
   product,
   handleDeleteProduct,
   setTypeSubmit,
+  setTitle,
 }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -40,6 +41,7 @@ const ProductCard = ({
             setIsFormModalOpen(true);
             setGetProductById(product);
             setTypeSubmit("handleUpdateData");
+            setTitle("Edit Produk");
           }}
           className="me-2 flex flex-row items-center gap-x-2 rounded-full px-3 py-1 text-sm text-blue-500 outline-0 outline-blue-500 hover:bg-blue-500 hover:text-white"
         >
