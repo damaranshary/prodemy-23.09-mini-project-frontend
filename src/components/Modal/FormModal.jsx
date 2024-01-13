@@ -50,7 +50,7 @@ const Modal = ({ isVisible, onClose, children }) => {
           size={20}
         />
         {/* gk di retrun null animasi atau trasition pas close modalnya jadi gk ada */}
-        {children}
+        {/* {children} */}
 
         {/* pake return null animasi atau transition pas close modalnya jadi ada, tapi gk kebaca default valuenya*/}
         {isVisible ? children : null}
