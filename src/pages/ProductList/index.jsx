@@ -14,6 +14,7 @@ import FormModal from "../../components/Modal/FormModal";
 import Form from "../../components/Form/Form";
 import { deleteProduct } from "../../lib/axios/productAxios";
 import ProductCard from "../../components/Card/ProductCard";
+import CategoryRadioGroup from "../../components/RadioGroup/CategoryRadioGroup";
 
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -166,35 +167,15 @@ const ProductList = () => {
           Tambah Produk <AiFillPlusCircle />
         </button>
       </div>
-      <RadioGroup
-        value={choosenCategory}
-        onChange={setChoosenCategory}
-        className="my-3 flex flex-row items-center gap-x-3 px-1 pb-2"
-      >
-        <RadioGroup.Label className="self-center text-base">
-          Kategori :
-        </RadioGroup.Label>
-        <div className="flex flex-row gap-x-3 self-center">
-          {categoriesData?.map((category) => (
-            <RadioGroup.Option key={category.id} as={Fragment} value={category}>
-              <div
-                className={`flex flex-row items-center justify-between gap-x-2 rounded-full border border-gray-300 px-5 py-2 hover:cursor-pointer ${
-                  category.id === choosenCategory?.id
-                    ? "bg-primary text-white"
-                    : ""
-                }`}
-              >
-                <p className="text-sm font-semibold">{category.name}</p>
-                {category.id === choosenCategory?.id && (
-                  <button onClick={handleResetCategory}>
-                    <AiOutlineCloseCircle />
-                  </button>
-                )}
-              </div>
-            </RadioGroup.Option>
-          ))}
-        </div>
-      </RadioGroup>
+      {categoriesData && (
+        <CategoryRadioGroup
+          choosenCategory={choosenCategory}
+          setChoosenCategory={setChoosenCategory}
+          categoriesData={categoriesData}
+          handleResetCategory={handleResetCategory}
+          label={"Kategori : "}
+        />
+      )}
       <div className="min-w-full ">
         <div className="mb-3 flex flex-row items-center border border-transparent border-y-gray-300 ps-3 font-semibold">
           <h4 className="w-2/12 px-3 py-3 text-sm md:text-base">Gambar</h4>
