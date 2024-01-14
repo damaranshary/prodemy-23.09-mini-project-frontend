@@ -1,18 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
-  products: [],
+  // products: [],
   cart: [],
-  wishlistConfirmed: false,
+  // wishlistConfirmed: false,
 }
 
-const productSlice = createSlice({
-  name: "shop",
+const cartSlice = createSlice({
+  name: "cart",
   initialState,
   reducers: {
-    setProducts: (state, action) => {
-      state.products = action.payload
-    },
+    // setProducts: (state, action) => {
+    //   state.products = action.payload
+    // },
     addToCart: (state, action) => {
       const item = state.cart.find((item) => item.id === action.payload.id)
       if (item) {
@@ -29,15 +29,15 @@ const productSlice = createSlice({
       }
     },
 
-    reserCart: (state) => {
+    resetCart: (state) => {
       state.cart = []
     },
 
-    confirmWishlist: (state) => {
-      state.wishlistConfirmed = true
-      state.total = state.cart.reduce((total, item) => total + Number(item.price), 0)
-    },
+    // confirmWishlist: (state) => {
+    //   state.wishlistConfirmed = true
+    //   state.total = state.cart.reduce((total, item) => total + Number(item.price), 0)
+    // },
   },
 })
-export const { setProducts, addToCart, removeFromCart, confirmWishlist, reserCart } = productSlice.actions
-export default productSlice.reducer
+export const { addToCart, removeFromCart, resetCart } = cartSlice.actions
+export default cartSlice.reducer
