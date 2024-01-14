@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../store/slices/productSlice";
+import { addToCart, removeFromCart } from "../../store/slices/cartSlice";
 
 const QuantityButton = ({ productId, quantity }) => {
   const dispatch = useDispatch();
@@ -25,6 +25,12 @@ const QuantityButton = ({ productId, quantity }) => {
       qty: qty,
       id: productId,
     };
+
+    if (qty === 0) {
+      dispatch(removeFromCart(productId));
+      return;
+    }
+
     dispatch(addToCart(payload));
   };
 
