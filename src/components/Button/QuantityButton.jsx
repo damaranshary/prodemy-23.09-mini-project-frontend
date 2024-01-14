@@ -33,7 +33,7 @@ const QuantityButton = ({ productId, quantity }) => {
       <div className="flex w-fit items-center gap-1">
         <button onClick={() => handleClick("-")}>-</button>
         <input
-          className="w-10 rounded-lg border-2 border-slate-200 text-center text-sm"
+          className="w-12 rounded-lg border-2 border-slate-200 text-center text-sm"
           type="text"
           onKeyDown={handleKeyDown}
           value={quantity}
