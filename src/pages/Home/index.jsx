@@ -2,12 +2,12 @@ import React, { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setProducts,
+  // setProducts,
   addToCart,
   removeFromCart,
-  confirmWishlist,
-  reserCart,
-} from "../../store/slices/productSlice";
+  // confirmWishlist,
+  resetCart,
+} from "../../store/slices/cartSlice";
 import { getAllProducts } from "../../lib/swr/productSWR";
 import { getAllCategories } from "../../lib/swr/categorySWR";
 import QuantityButton from "../../components/Button/QuantityButton";
@@ -15,10 +15,11 @@ import { BeatLoader } from "react-spinners";
 import { AiFillPlusCircle, AiOutlinePlusCircle } from "react-icons/ai";
 import { useSearchParams } from "react-router-dom";
 import { RadioGroup } from "@headlessui/react";
+import CheckoutModal from "../../components/Modal/CheckoutModal";
 
 function Home() {
   const dispatch = useDispatch();
-  const { cart } = useSelector((state) => state.products);
+  const { cart } = useSelector((state) => state.cart);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParams = searchParams.get("q");
@@ -26,6 +27,8 @@ function Home() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState(null);
   const [category, setCategory] = useState(null);
+
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
   const {
     data: productData,
@@ -78,9 +81,12 @@ function Home() {
     dispatch(addToCart(payload));
   };
 
-  const handleConfirmWishlist = () => {
-    alert("Produk berhasil di order");
-    dispatch(reserCart());
+  const handleCheckout = () => {
+    setIsCheckoutModalOpen(true);
+  };
+
+  const handleConfirmCheckout = () => {
+    dispatch(resetCart());
   };
 
   useEffect(() => {
@@ -262,11 +268,17 @@ function Home() {
                 </RadioGroup>
               </div>
               <button
-                onClick={handleConfirmWishlist}
-                className="rounded-xl bg-primary p-2 text-white font-semibold"
+                onClick={handleCheckout}
+                disabled={paymentMethod === ""}
+                className="rounded-xl bg-primary p-2 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-25"
               >
                 Konfirmasi Pesanan
               </button>
+              <CheckoutModal
+                isOpen={isCheckoutModalOpen}
+                handleConfirmCheckout={handleConfirmCheckout}
+                closeModal={() => setIsCheckoutModalOpen(false)}
+              />
             </>
           ) : (
             <p className="text-center">Keranjang Kosong</p>
