@@ -12,6 +12,8 @@ export const addNewProduct = async (
   setImg,
   mutate,
   setProgressUpload,
+  setTitleSuccessModal,
+  setIsSuccessModalOpen,
 ) => {
   const data = await axios
     .post(`${import.meta.env.VITE_API_URL}/products`, payload, {
@@ -30,14 +32,22 @@ export const addNewProduct = async (
       reset();
       mutate();
       setProgressUpload(0);
-      alert("Successfully add product!");
+      setTitleSuccessModal("Produk Berhasil Ditambahkan");
+      setIsSuccessModalOpen(true);
     })
     .catch((error) => console.log(error));
 
   return data;
 };
 
-export const updateProduct = async (payload, id, mutate, setProgressUpload) => {
+export const updateProduct = async (
+  payload,
+  id,
+  mutate,
+  setProgressUpload,
+  setTitleSuccessModal,
+  setIsSuccessModalOpen,
+) => {
   const data = await axios
     .put(`${import.meta.env.VITE_API_URL}/products/${id}`, payload, {
       headers: {
@@ -53,7 +63,8 @@ export const updateProduct = async (payload, id, mutate, setProgressUpload) => {
     .then(() => {
       mutate();
       setProgressUpload(0);
-      alert("Successfully update product!");
+      setTitleSuccessModal("Produk Berhasil Diedit");
+      setIsSuccessModalOpen(true);
     })
     .catch((error) => console.log(error));
 

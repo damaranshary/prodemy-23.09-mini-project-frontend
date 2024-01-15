@@ -12,7 +12,11 @@ import { getAllProducts } from "../../lib/swr/productSWR";
 import { getAllCategories } from "../../lib/swr/categorySWR";
 import QuantityButton from "../../components/Button/QuantityButton";
 import { BeatLoader } from "react-spinners";
-import { AiFillPlusCircle, AiOutlinePlusCircle } from "react-icons/ai";
+import {
+  AiFillPlusCircle,
+  AiOutlineDelete,
+  AiOutlinePlusCircle,
+} from "react-icons/ai";
 import { useSearchParams } from "react-router-dom";
 import { RadioGroup } from "@headlessui/react";
 import CheckoutModal from "../../components/Modal/CheckoutModal";
@@ -87,6 +91,11 @@ function Home() {
 
   const handleConfirmCheckout = () => {
     dispatch(resetCart());
+  };
+
+  const handleRemoveFromCart = (item) => {
+    const payload = item;
+    dispatch(removeFromCart(payload));
   };
 
   useEffect(() => {
@@ -204,6 +213,11 @@ function Home() {
                     className="flex items-center justify-between border border-transparent border-b-gray-200 pb-3"
                     key={list.id}
                   >
+                    <AiOutlineDelete
+                      size={20}
+                      className="fill-red-500 hover:cursor-pointer hover:fill-red-700"
+                      onClick={() => handleRemoveFromCart(list.id)}
+                    />
                     <div className="flex items-center gap-3">
                       <img
                         src={list.image}
