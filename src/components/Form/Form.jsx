@@ -6,12 +6,15 @@ import { useState } from "react";
 import { AiOutlineCloudUpload, AiOutlineDelete } from "react-icons/ai";
 import { getAllCategories } from "../../lib/swr/categorySWR";
 import { MoonLoader } from "react-spinners";
+import SuccessModal from "../Modal/SuccessModal";
 
 const Form = ({ text, product, typeSubmit, mutate }) => {
   const { data: getCategories, isLoading, error } = getAllCategories();
 
   const [img, setImg] = useState(product ? { url: product.image } : "");
   const [progressUpload, setProgressUpload] = useState(0);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [titleSuccessModal, setTitleSuccessModal] = useState();
 
   if (error) {
     console.log(error);
@@ -61,7 +64,15 @@ const Form = ({ text, product, typeSubmit, mutate }) => {
       categoryId: data.category,
     };
 
-    addNewProduct(payload, reset, setImg, mutate, setProgressUpload);
+    addNewProduct(
+      payload,
+      reset,
+      setImg,
+      mutate,
+      setProgressUpload,
+      setTitleSuccessModal,
+      setIsSuccessModalOpen,
+    );
   };
 
   const handleUpdateData = (data) => {
@@ -72,7 +83,14 @@ const Form = ({ text, product, typeSubmit, mutate }) => {
       categoryId: data.category,
     };
 
-    updateProduct(payload, product.id, mutate, setProgressUpload);
+    updateProduct(
+      payload,
+      product.id,
+      mutate,
+      setProgressUpload,
+      setTitleSuccessModal,
+      setIsSuccessModalOpen,
+    );
   };
 
   return (
@@ -179,6 +197,11 @@ const Form = ({ text, product, typeSubmit, mutate }) => {
           </button>
         )}
       </form>
+      <SuccessModal
+        text={titleSuccessModal}
+        isOpen={isSuccessModalOpen}
+        closeModal={() => setIsSuccessModalOpen(false)}
+      />
     </>
   );
 };
